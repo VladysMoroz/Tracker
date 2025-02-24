@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Tracker.Entitites;
+﻿using Microsoft.AspNetCore.Mvc;
 using Tracker.Entitites.Enums;
+using Tracker.Entitites.Filters;
 using Tracker.Interfaces;
+using Tracker.Services;
 
 namespace Tracker.Controllers
 {
@@ -10,31 +10,57 @@ namespace Tracker.Controllers
     [ApiController]
     public class SessionController : ControllerBase
     {
-        private readonly ISessionRepository _sessionRepository;
+        private readonly ISessionService _sessionService;
+        private readonly ValidationService _validationService;
 
-        public SessionController(ISessionRepository sessionRepository)
+        public SessionController(ISessionService sessionService)
         {
-            _sessionRepository = sessionRepository;
+            _sessionService = sessionService;
+        }
+
+        [ActivatorUtilitiesConstructor]
+        public SessionController(ISessionService sessionService, ValidationService validationService)
+        {
+            _sessionService = sessionService;
+            _validationService = validationService;
         }
 
         [HttpPost("AddSession")]
-        public async Task<IActionResult> CreateSessionAsync([FromBody] Categories category)
+        public async Task<IActionResult> CreateSessionAsync([FromBody] string categoryName)
         {
-            // check if session was opened before, it must return an object which wasn't closed
-            var session = await _sessionRepository.GetActiveSessionAsync(category);
-
-            if (session is null)
+            if (string.IsNullOrEmpty(categoryName))
             {
-                // in case session existed, we would close it 
-                await _sessionRepository.FinishSessionAsync(session);
-                return Ok("The old session was successfully closed");
+                return BadRequest("Category name cannot be empty.");
+            }
+
+            if (!_validationService.ValidateCategoryName(categoryName))
+            {
+                return BadRequest("Invalid category name format.");
+            }
+
+
+            var sessionForCreating = await _sessionService.CreateSessionAsync(categoryName);
+
+            return Ok(sessionForCreating);
+            
+        }
+
+        [HttpPost("GetSessionsForStatistic")]
+        public async Task<IActionResult> GetSessionsForStatisticAsync([FromBody]Filter filter)
+        {
+            if(filter is null)
+            {
+                return BadRequest("Empty filter was sent to the API");
             }
             else
             {
-                var sessionForCreating = await _sessionRepository.CreateSessionAsync(category);
-                // method which links category to the session 
+                var sessions = await _sessionService.GetSessionsForStatisticAsync(filter);
+                if(sessions is null)
+                {
+                    return NotFound("No sessions have been found by defined filter");
+                }
 
-                return Ok(sessionForCreating);
+                return Ok(sessions);
             }
         }
     }
