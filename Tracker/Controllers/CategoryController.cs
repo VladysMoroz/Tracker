@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tracker.Entitites.Enums;
-using Tracker.Interfaces;
+using Tracker.Entitites.Filters;
+using Tracker.Interfaces.ServiceInterfaces;
 using Tracker.Services;
 
 namespace Tracker.Controllers
@@ -11,20 +12,21 @@ namespace Tracker.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-        private readonly ValidationService _validationService;
+        //private readonly ValidationService _validationService;
 
         public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
 
-        [ActivatorUtilitiesConstructor]
-        public CategoryController(ICategoryService categoryService, ValidationService validationService)
-        {
-            _categoryService = categoryService;
-            _validationService = validationService;
-        }
+        //[ActivatorUtilitiesConstructor]
+        //public CategoryController(ICategoryService categoryService, ValidationService validationService)
+        //{
+        //    _categoryService = categoryService;
+        //    _validationService = validationService;
+        //}
 
+        [ServiceFilter(typeof(ValidateCategoryNameFilter))]
         [HttpPost("CreateCategory")]
         public async Task<IActionResult> CreateCategoryAsync(string name)
         {
@@ -48,21 +50,13 @@ namespace Tracker.Controllers
             return Ok(categories);
         }
 
+        [ServiceFilter(typeof(ValidateNewNameAndIdFilter))]
         [HttpPut("RenameCategory")]
         public async Task<IActionResult> RenameCategoryAsync(string newName, int id)
         {
             if (string.IsNullOrEmpty(newName))
             {
                 return BadRequest("New category name cannot be empty.");
-            }
-
-            if (!_validationService.ValidateNewCategoryName(newName))
-            {
-                return BadRequest("Invalid category name format.");
-            }
-            if (!_validationService.ValidateCategoryId(id))
-            {
-                return BadRequest("Invalid category ID. It must be a positive number (1-99).");
             }
 
             var renamedCategory = await _categoryService.RenameCategoryAsync(newName, id);

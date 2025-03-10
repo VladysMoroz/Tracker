@@ -9,7 +9,7 @@ using Tracker.Controllers;
 using Tracker.Entitites;
 using Tracker.Entitites.Enums;
 using Tracker.Entitites.Filters;
-using Tracker.Interfaces;
+using Tracker.Interfaces.RepositoryInterfaces;
 using Tracker.Services;
 using Xunit;
 

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Tracker.Controllers;
 using Tracker.Entitites;
 using Tracker.Entitites.Filters;
-using Tracker.Interfaces;
+using Tracker.Interfaces.ServiceInterfaces;
 using Tracker.Repositories;
 using Tracker.Services;
 using Xunit;
