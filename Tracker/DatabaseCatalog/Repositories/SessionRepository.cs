@@ -2,7 +2,7 @@
 using Tracker.Entitites;
 using Tracker.Entitites.Enums;
 using Tracker.Entitites.Filters;
-using Tracker.Interfaces;
+using Tracker.Interfaces.RepositoryInterfaces;
 
 namespace Tracker.Repositories
 {

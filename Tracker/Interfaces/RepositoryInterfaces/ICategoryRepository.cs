@@ -1,9 +1,9 @@
 ﻿using Tracker.Entitites;
 using Tracker.Entitites.Enums;
 
-namespace Tracker.Interfaces
+namespace Tracker.Interfaces.RepositoryInterfaces
 {
-    public interface ICategoryService
+    public interface ICategoryRepository
     {
         Task<Category> CreateCategoryAsync(string name);
         Task<List<Category>> GetAllCategoriesAsync();

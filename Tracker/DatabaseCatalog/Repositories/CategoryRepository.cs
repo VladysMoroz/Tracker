@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tracker.Entitites;
 using Tracker.Entitites.Enums;
-using Tracker.Interfaces;
+using Tracker.Interfaces.RepositoryInterfaces;
 using Tracker.Repositories;
 
 namespace Tracker.DatabaseCatalog.Repositories

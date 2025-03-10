@@ -1,7 +1,7 @@
 ﻿using Tracker.Entitites;
 using Tracker.Entitites.Filters;
 
-namespace Tracker.Interfaces
+namespace Tracker.Interfaces.ServiceInterfaces
 {
     public interface ISessionService
     {

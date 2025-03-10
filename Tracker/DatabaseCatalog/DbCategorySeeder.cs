@@ -5,7 +5,7 @@ namespace Tracker.DatabaseCatalog
 {
     public static class DbCategorySeeder
     {
-        public static void SeedWeapon(ModelBuilder modelBuilder)
+        public static void SeedCategories(ModelBuilder modelBuilder)
         {
             var category = new List<Category>
             {

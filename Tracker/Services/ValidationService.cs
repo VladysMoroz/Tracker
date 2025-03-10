@@ -1,34 +1,66 @@
 ﻿using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Tracker.Controllers.Validation;
+using Tracker.Entitites.Enums;
+using Tracker.Entitites.Filters;
 
 namespace Tracker.Services
 {
     public class ValidationService
     {
-        private readonly string _categoryNamePattern;
-        private readonly string _newCategoryNamePattern;
-        private readonly string _categoryIdPattern;
+        private readonly Dictionary<string, string> _validationPatterns;
 
         public ValidationService(IOptions<ValidationPatterns> validationPatterns)
         {
-            _categoryNamePattern = validationPatterns.Value.SessionController_CreateSessionAsync_categoryName;
-            _newCategoryNamePattern = validationPatterns.Value.CategoryController_RenameCategoryAsync_newName;
-            _categoryIdPattern = validationPatterns.Value.CategoryController_RenameCategoryAsync_id;
+            _validationPatterns = new Dictionary<string, string>
+        {
+            { "categoryName", validationPatterns.Value.SessionController_CreateSessionAsync_categoryName },
+            { "newCategoryName", validationPatterns.Value.CategoryController_RenameCategoryAsync_newName },
+            { "categoryId", validationPatterns.Value.CategoryController_RenameCategoryAsync_id }
+        };
         }
 
-        public bool ValidateCategoryName(string categoryName)
+        // Замість того, щоб просто повертати false ( тип bool раніше ), створений клас, що містить текст помилки + тип
+        public ValidationResult Validate(string key, string value)
         {
-            return Regex.IsMatch(categoryName, _categoryNamePattern);
+            if (!_validationPatterns.TryGetValue(key, out var pattern))
+                throw new ArgumentException($"Validation pattern for '{key}' not found.");
+
+            var isValid = Regex.IsMatch(value, pattern);
+            return isValid ? ValidationResult.Success : ValidationResult.Failure($"Параметр {key} не відповідає вимогам.");
         }
 
-        public bool ValidateNewCategoryName(string newCategoryName)
-        {
-            return Regex.IsMatch(newCategoryName, _newCategoryNamePattern);
+        public class ValidationResult
+        { 
+            public static ValidationResult Success => new ValidationResult { IsValid = true };
+            public static ValidationResult Failure(string message) => new ValidationResult { IsValid = false, ErrorMessage = message };
+
+            public bool IsValid { get; set; }
+            public string ErrorMessage { get; set; }
         }
-        public bool ValidateCategoryId(int id)
+
+        public bool ValidateFilter(Filter filter)
         {
-            return Regex.IsMatch(id.ToString(), _categoryIdPattern);
+            if (filter.Quantity <= 0)
+            {
+                return false;
+            }
+
+            if (!Enum.IsDefined(typeof(OptionsForDisplayingStats), filter.Option))
+            {
+                return false;
+            }
+
+            return true;
         }
+
+        //public bool Validate(string key, string value)
+        //{
+        //    if (!_validationPatterns.TryGetValue(key, out var pattern))
+        //        throw new ArgumentException($"Validation pattern for '{key}' not found.");
+
+        //    return Regex.IsMatch(value, pattern);
+        //}
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Moq;
 using Tracker.Entitites;
-using Tracker.Interfaces;
+using Tracker.Interfaces.RepositoryInterfaces;
 using Tracker.Services;
 using Xunit;
 

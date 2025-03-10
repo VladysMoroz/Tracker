@@ -2,7 +2,7 @@
 using Tracker.Entitites.Enums;
 using Tracker.Entitites.Filters;
 
-namespace Tracker.Interfaces
+namespace Tracker.Interfaces.RepositoryInterfaces
 {
     public interface ISessionRepository
     {
