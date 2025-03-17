@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Tracker.Entitites.Enums;
 using Tracker.Entitites.Filters;
 using Tracker.Interfaces.ServiceInterfaces;
@@ -26,10 +28,13 @@ namespace Tracker.Controllers
         //    _validationService = validationService;
         //}
 
+        [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(ValidateCategoryNameFilter))]
         [HttpPost("CreateCategory")]
         public async Task<IActionResult> CreateCategoryAsync(string name)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (!string.IsNullOrEmpty(name))
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(name);
@@ -42,9 +47,12 @@ namespace Tracker.Controllers
             }
         }
 
+        [Authorize(Policy = "AdminPolicy")]
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategoriesAsync()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var categories = await _categoryService.GetAllCategoriesAsync();
 
             return Ok(categories);
@@ -63,6 +71,7 @@ namespace Tracker.Controllers
             return Ok(renamedCategory);
         }
 
+        [Authorize(Policy = "UserPolicy")]
         [HttpDelete("DeleteCategory")]
         public async Task<IActionResult> DeleteCategoryAsync(int id)
         {
